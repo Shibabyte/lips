@@ -26,6 +26,8 @@ Setting the 0x08 bit in the flag byte indicates the inclusion of the new MWEB tr
 
 The MWEB transaction serialization format is as follows:
 
+==== CTransaction (with MWEB data): ====
+
 {| class="wikitable" style="width: auto; text-align: center; font-size: smaller; table-layout: fixed;"
 !Field Size
 !Name
@@ -45,7 +47,7 @@ The MWEB transaction serialization format is as follows:
 | 1
 | flag
 | char
-| 0x08 bit must be set
+| 0x08 bit must be set for MWEB transactions
 |-
 | 1+
 | txin_count
@@ -90,7 +92,7 @@ The MWEB transaction serialization format is as follows:
 
 NOTE: Currently, the only MWEB types (`mweb_flag`) supported are 0x00 (HogEx transaction) and 0x01 (MWEB transaction).
 
-mweb_tx Serialization:
+==== mweb_tx: ====
 
 {| class="wikitable" style="width: auto; text-align: center; font-size: smaller; table-layout: fixed;"
 !Field Size
@@ -149,7 +151,7 @@ mweb_tx Serialization:
 | A list of 0 or more MWEB owner signatures
 |}
 
-mweb_input Serialization:
+==== mweb_input: ====
 
 {| class="wikitable" style="width: auto; text-align: center; font-size: smaller; table-layout: fixed;"
 !Field Size
@@ -173,7 +175,19 @@ mweb_input Serialization:
 | input schnorr signature
 |}
 
-TODO: mweb_output, mweb_kernel, and mweb_owner_sig serialization formats.
+==== mweb_output: ====
+
+TODO: Document
+
+==== mweb_kernel: ====
+
+TODO: Document
+
+==== mweb_owner_sig: ====
+
+TODO: Document
+
+----
 
 === Handshake ===
 A node will signal that it can provide MWEB data using the following service bit
