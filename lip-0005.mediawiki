@@ -197,7 +197,12 @@ A node will signal that it can provide MWEB data using the following service bit
 
 === Sorting ===
 
-TODO: Define input, output, kernel, and owner sig sort orders.
+The following sorting rules shall be enforced for both transactions and blocks.
+
+* Inputs shall be in ascending order by their raw commitment value.
+* Outputs shall be in ascending order by their raw commitment value.
+* Kernels shall be sorted by net supply increase, i.e. `pegin - (fee + pegout)`, with highest increase first, then in ascending order by their raw commitment value.
+* Signed owner messages shall be in ascending order by their raw hashed value.
 
 === Hashes ===
 Transaction hashes will be calculated exactly as before, with the exception of pure MWEB-to-MWEB transactions (no non-MWEB transaction data).
