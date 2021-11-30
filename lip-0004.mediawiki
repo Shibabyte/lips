@@ -31,7 +31,7 @@ A stealth address is a pair '''(A<sub>i</sub> = a<sub>i</sub>*G, B = b<sub>i</su
 
 At the moment, no known method exists for supporting parent/child addresses.
 
-====1.1 Subaddress Generation=====
+====1.1 Subaddress Generation====
 
 Unique stealth addresses should be generated deterministically from a wallet's seed using the following formula:
 
