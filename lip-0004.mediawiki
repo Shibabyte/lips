@@ -39,7 +39,7 @@ Unique stealth addresses should be generated deterministically from a wallet's s
 # Generate master spend keypair ('''b''', '''B''') using HD keychain path m/1/0/101'
 # Choose the lowest unused address index '''i'''
 # Calculate one-time spend keypair ('''b<sub>i</sub>''', '''B<sub>i</sub>''') as:
-:: '''b<sub>i</sub> = b + HASH32(A | i | a)'''
+:: '''b<sub>i</sub> = b + HASH32(A||i||a)'''
 :: '''B<sub>i</sub> = b<sub>i</sub>*G'''
 # Calculate one-time scan keypair ('''a<sub>i</sub>''', '''A<sub>i</sub>''') as:
 :: '''a<sub>i</sub> = a*b<sub>i</sub>'''
@@ -57,7 +57,7 @@ A list of outputs: tuples of the form '''<nowiki>[</nowiki>C, &pi;, v', n', K<su
 
 * an ephemeral key '''K<sub>s</sub> = k<sub>s</sub>*G''', chosen by the sender
 * an output public key '''K<sub>o</sub> = k<sub>o</sub>*G''' whose private key is known only by the receiver
-* A key exchange public key '''K<sub>e</sub> = s*B = s*b*G''', where '''s''' can be calculated by sender and receiver, but '''b''' is known only by the receiver
+* A key exchange public key '''K<sub>e</sub> = s*B<sub>i</sub> = s*b<sub>i</sub>*G''', where '''s''' can be calculated by sender and receiver, but '''b<sub>i</sub>''' is known only by the receiver
 * a masked value '''v'''' which is the value '''v''' encrypted by a shared secret '''t'''
 * a masked nonce '''n'''' which is a one-time nonce '''n''' encrypted by a shared secret '''t'''
 * a coin '''C = v*H + q*G''' for its value '''v''', the opening '''q''' of the coin is shared between the sender and recipient of the coin (see section 3.1)
@@ -102,7 +102,7 @@ To create an output for value '''v''' to a receiver's stealth address pair '''(A
 # Randomly generate the sender's keypair '''(k<sub>s</sub>, K<sub>s</sub>)'''
 # Derive the nonce '''n = HASH16(T_NONCE||k<sub>s</sub>)'''
 # Derive the sending key '''s = HASH32(T_SEND||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
-# Derive the shared secret '''t = HASH32(T_DERIVE||s*A)'''
+# Derive the shared secret '''t = HASH32(T_DERIVE||s*A<sub>i</sub>)'''
 # Compute the receiver's one-time public key '''K<sub>o</sub> = B<sub>i</sub> + HASH32(T_RECEIVE||t)*G'''
 # Compute the key exchange public key '''K<sub>e</sub> = s*B<sub>i</sub>'''
 # Encrypt the value '''v' = v ^ HASH8(T_VMASK, t)'''
@@ -185,7 +185,7 @@ To check if an output belongs to a wallet:
 
 If all verifications succeed, the output belongs to the wallet, and is safe to use.
 
-The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T_RECEIVE||t)''' + '''a<sub>i</sub>'''.
+The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T_RECEIVE||t)''' + '''b<sub>i</sub>'''.
 
 ===8 Security===
 
