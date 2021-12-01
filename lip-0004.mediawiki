@@ -53,7 +53,7 @@ A transaction consists of:
 
 ====2.1 Outputs====
 
-A list of outputs: tuples of the form '''[C, &pi;, v', n', K<sub>s</sub>, K<sub>o</sub>, K<sub>e</sub>, &rho;]''' associated to an output address (A<sub>i</sub>, B<sub>i</sub>) composed of:
+A list of outputs: tuples of the form '''<nowiki>[</nowiki>C, &pi;, v', n', K<sub>s</sub>, K<sub>o</sub>, K<sub>e</sub>, &rho;<nowiki>]</nowiki>''' associated to an output address (A<sub>i</sub>, B<sub>i</sub>) composed of:
 
 * an ephemeral key '''K<sub>s</sub> = k<sub>s</sub>*G''', chosen by the sender
 * an output public key '''K<sub>o</sub> = k<sub>o</sub>*G''' whose private key is known only by the receiver
@@ -68,7 +68,7 @@ Section 2.3.1 describes the calculation of '''n''', '''s''', '''t''', and '''q''
 
 ====2.2 Inputs====
 
-A list of inputs: tuples of the form ['''K<sub>i</sub>''', '''C''', '''K<sub>o</sub>''', '''&sigma;''']''' referencing a previously unspent output ('''C'''), composed of:
+A list of inputs: tuples of the form <nowiki>[</nowiki>'''K<sub>i</sub>''', '''C''', '''K<sub>o</sub>''', '''&sigma;'''<nowiki>]</nowiki>''' referencing a previously unspent output ('''C'''), composed of:
 
 * an ephemeral key '''K<sub>i</sub> = k<sub>i</sub>*G''' randomly chosen
 * a reference to a previously unspent output commitment '''C''' and its corresponding output public key '''K<sub>o</sub>''' 
