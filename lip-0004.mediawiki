@@ -72,7 +72,7 @@ A list of inputs: tuples of the form ['''K<sub>i</sub>''', '''C''', '''K<sub>o</
 
 * an ephemeral key '''K<sub>i</sub> = k<sub>i</sub>*G''' randomly chosen
 * a reference to a previously unspent output commitment '''C''' and its corresponding output public key '''K<sub>o</sub>''' 
-* a schnorr signature '''&sigma;''' of the message '''HASH32(C)''' under input key '''K<sub>input</sub> = K<sub>i</sub> + HASH32(K<sub>i</sub>)*K<sub>o</sub>'''
+* a schnorr signature '''&sigma;''' of the message '''HASH32(C)''' under input key '''K<sub>input</sub> = K<sub>i</sub> + HASH32(K<sub>i</sub>||K<sub>o</sub>)*K<sub>o</sub>'''
 
 ====2.3 Kernels====
 
@@ -83,7 +83,7 @@ A kernel, which is composed of:
 :* the excess '''E = (&sum;C<sub>out</sub> + f*H) - (&sum;C<sub>in</sub> + x*G)''' where '''x''' is the transaction's transaction offset
 :* (optional) the stealth excess '''E' = &sum;K<sub>s</sub> + (&sum;K<sub>i</sub> - &sum;K<sub>o</sub>) - x'*G''' where '''x'''' is the transaction's stealth offset
 :* a signature '''&psi;''', valid for message '''(a||f)'''
-::* for transactions with stealth excesses, the signatures must be valid under verification key '''HASH32(E')*E + E''''
+::* for transactions with stealth excesses, the signatures must be valid under verification key '''HASH32(E||E')*E + E''''
 ::* for transactions without stealth excesses, the signatures must be valid under verification key '''E'''
 
 ====2.4 Offsets====
@@ -117,7 +117,7 @@ For each input, a sender key is chosen at random '''k<sub>s</sub> <-<sub>$</sub>
 
 Using the sender key ('''k<sub>s</sub>''') and the private key ('''k<sub>o</sub>''') of the output being spent, create a Schnorr signature '''&sigma;''' of the message '''m = HASH32(C<sub>in</sub>)''' under key:
 
-: '''K<sub>input</sub> = K<sub>i</sub> + HASH32(K<sub>i</sub>)*K<sub>o</sub>'''
+: '''K<sub>input</sub> = K<sub>i</sub> + HASH32(K<sub>i</sub>||K<sub>o</sub>)*K<sub>o</sub>'''
 
 ====3.3 Kernel & Transaction Offset====
 
@@ -129,7 +129,7 @@ The offset is chosen at random '''x <-<sub>$</sub> Z<sub>p</sub>''', and then th
 
 For most transactions, the kernel signature is just a signature of the kernel message (fee, lock height, etc.) under verification key '''E'''.
 
-Though it should be rare (section 8.3.1 for scenario), kernels can also contain a stealth excess, in which case the signature should be valid under verification key '''HASH32(E')*E + E''''.
+Though it should be rare (section 8.3.1 for scenario), kernels can also contain a stealth excess, in which case the signature should be valid under verification key '''HASH32(E||E')*E + E''''.
 
 ====3.4 Stealth Offset====
 
@@ -154,7 +154,7 @@ A transaction (or aggregated transaction) is valid iff:
 : (2) all range proofs are valid, and commit to the associated output data '''(C||v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>||&rho;)'''
 : (3) all output signatures '''&rho;''' are valid under verification key '''K<sub>s</sub>''' and message '''(C||v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>)'''
 : (4) all kernel signatures '''&psi;''' are valid under for message '''(a||f)'''
-:: (a) for transactions with stealth excesses, the signatures are valid under verification key '''HASH32(E')*E + E''''
+:: (a) for transactions with stealth excesses, the signatures are valid under verification key '''HASH32(E||E')*E + E''''
 :: (b) for transactions without stealth excesses, the signatures are valid under verification key '''E'''
 : (5) all kernels referenced ('''&lambda;''') by stealth excesses must be present in the transaction
 : (6) values are balanced: '''(&sum;C<sub>out</sub> + (&sum;f - &sum;a)*H) - &sum;C<sub>in</sub> = &sum;E + x*G'''
