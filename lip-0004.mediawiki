@@ -60,11 +60,11 @@ A list of outputs: tuples of the form '''<nowiki>[</nowiki>C, &pi;, v', n', K<su
 * A key exchange public key '''K<sub>e</sub> = s*B = s*b*G''', where '''s''' can be calculated by sender and receiver, but '''b''' is known only by the receiver
 * a masked value '''v'''' which is the value '''v''' encrypted by a shared secret '''t'''
 * a masked nonce '''n'''' which is a one-time nonce '''n''' encrypted by a shared secret '''t'''
-* a coin '''C = v*H + q*G''' for its value '''v''', the opening '''q''' of the coin is shared between the sender and recipient of the coin (see 2.3)
+* a coin '''C = v*H + q*G''' for its value '''v''', the opening '''q''' of the coin is shared between the sender and recipient of the coin (see section 3.1)
 * a rangeproof '''&pi;''' that attests that '''C''' is a commitment to a value '''v''' < '''v<sub>max</sub>''' and also commits to a message '''(C||v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>||&rho;)'''
 * a signature '''&rho;''', valid under verification key '''K<sub>s</sub>''' and message '''(C||v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>)'''
 
-Section 2.3.1 describes the calculation of '''n''', '''s''', '''t''', and '''q'''.
+Section 3.1 describes the calculation of '''n''', '''s''', '''t''', and '''q'''.
 
 ====2.2 Inputs====
 
@@ -108,7 +108,7 @@ To create an output for value '''v''' to a receiver's stealth address pair '''(A
 # Encrypt the value '''v' = v ^ HASH8(T_VMASK, t)'''
 # Encrypt the nonce '''n' = n ^ HASH16(T_NMASK, t)'''
 # Generate the signature '''&rho;''' for message '''(v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>)''' using the sender's key '''k<sub>s</sub>'''
-# Compute the commitment '''C = v*H + q*G''' where '''q = HASH32(T_BLIND, t)'''
+# Compute the commitment '''C = v*H + q*G''' where '''q = SWITCH(v, HASH32(T_BLIND, t))'''
 # Generate the rangeproof '''&pi;''', proving '''v < v<sub>max</sub>''', while also committing to the message '''(C||v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>||&rho;)'''
 
 ====3.2 Input Creation====
@@ -173,19 +173,19 @@ Wallets must keep a map '''B<sub>i</sub>'''->'''i''' of all used spend pubkeys a
 
 To check if an output belongs to a wallet:
 
-# Calculate the ECDHE shared secret '''t''' = '''HASH32('D'|a*K<sub>t</sub>)'''
+# Calculate the ECDHE shared secret '''t''' = '''HASH32(T_DERIVE||a*K<sub>t</sub>)'''
 # If the first byte of '''t''' does not match the view tag '''t[0]''', the output does not belong to the wallet.
-# Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' - '''HASH32('O'|t)*G'''
+# Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' - '''HASH32(T_RECEIVE||t)*G'''
 # Lookup the index '''i''' that generates '''B<sub>i</sub>''' from the wallet's map '''B<sub>i</sub>'''->'''i'''. If not found, the output does not belong to the wallet.
-# Decrypt the value '''v''' = '''v' ^ HASH8(T_VMASK, t)'''
-# Verify that '''SWITCH(v, )''' ?= '''C<sub>o</sub>'''
-# Decrypt the nonce '''n''' = '''n' ^ HASH16(T_NMASK, t)'''
-# Calculate the send key '''s''' = '''HASH32('S'|A<sub>i</sub>|B<sub>i</sub>|v|n)'''
+# Decrypt the value '''v''' = '''v' ^ HASH8(T_VMASK||t)'''
+# Verify that '''v*H + SWITCH(v, q)*G''' ?= '''C<sub>o</sub>''' where '''q = HASH32(T_BLIND||t)'''
+# Decrypt the nonce '''n''' = '''n' ^ HASH16(T_NMASK||t)'''
+# Calculate the send key '''s''' = '''HASH32(T_SEND||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
 # Verify that '''K<sub>e</sub>''' ?= '''s*B<sub>i</sub>'''.
 
 If all verifications succeed, the output belongs to the wallet, and is safe to use.
 
-The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32('O'|t)''' + '''a<sub>i</sub>'''.
+The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T_RECEIVE||t)''' + '''a<sub>i</sub>'''.
 
 ===8 Security===
 
