@@ -39,11 +39,11 @@ Unique stealth addresses should be generated deterministically from a wallet's s
 # Generate master spend keypair ('''b''', '''B''') using HD keychain path m/1/0/101'
 # Choose the lowest unused address index '''i'''
 # Calculate one-time spend keypair ('''b<sub>i</sub>''', '''B<sub>i</sub>''') as:
-:: '''b<sub>i</sub> = b + HASH32(A||i||a)'''
-:: '''B<sub>i</sub> = b<sub>i</sub>*G'''
+#; '''b<sub>i</sub> = b + HASH32(A||i||a)'''
+#; '''B<sub>i</sub> = b<sub>i</sub>*G'''
 # Calculate one-time scan keypair ('''a<sub>i</sub>''', '''A<sub>i</sub>''') as:
-:: '''a<sub>i</sub> = a*b<sub>i</sub>'''
-:: '''A<sub>i</sub> = a<sub>i</sub>*G'''
+#; '''a<sub>i</sub> = a*b<sub>i</sub>'''
+#; '''A<sub>i</sub> = a<sub>i</sub>*G'''
 
 ===2 Transaction Structure===
 
@@ -68,7 +68,7 @@ Section 3.1 describes the calculation of '''n''', '''s''', '''t''', and '''q'''.
 
 ====2.2 Inputs====
 
-A list of inputs: tuples of the form <nowiki>[</nowiki>'''K<sub>i</sub>''', '''C''', '''K<sub>o</sub>''', '''&sigma;'''<nowiki>]</nowiki>''' referencing a previously unspent output ('''C'''), composed of:
+A list of inputs: tuples of the form <nowiki>[</nowiki>'''K<sub>i</sub>''', '''C''', '''K<sub>o</sub>''', '''&sigma;'''<nowiki>]</nowiki> referencing a previously unspent output ('''C'''), composed of:
 
 * an ephemeral key '''K<sub>i</sub> = k<sub>i</sub>*G''' randomly chosen
 * a reference to a previously unspent output commitment '''C''' and its corresponding output public key '''K<sub>o</sub>''' 
@@ -173,7 +173,7 @@ Wallets must keep a map '''B<sub>i</sub>'''->'''i''' of all used spend pubkeys a
 
 To check if an output belongs to a wallet:
 
-# Calculate the ECDHE shared secret '''t''' = '''HASH32(T<sub>derive</sub>||a*K<sub>t</sub>)'''
+# Calculate the ECDHE shared secret '''t''' = '''HASH32(T<sub>derive</sub>||a*K<sub>e</sub>)'''
 # If the first byte of '''t''' does not match the view tag '''t[0]''', the output does not belong to the wallet.
 # Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' - '''HASH32(T<sub>recv</sub>||t)*G'''
 # Lookup the index '''i''' that generates '''B<sub>i</sub>''' from the wallet's map '''B<sub>i</sub>'''->'''i'''. If not found, the output does not belong to the wallet.
@@ -280,13 +280,20 @@ A payment proof shall consist of the output, a merkle proof proving the output i
 To verify, the arbiter must:
 
 # Verify the merkle proof is valid for the output and the blockchain's TXO PMMR
-# Calculate the send key:<br/>&emsp;'''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
-# Calculate the shared secret:<br/>&emsp;'''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
-# Verify the output's commitment:<br/>&emsp;'''C ?= v*H + SWITCH(v, HASH32(T<sub>blind</sub>||t))'''
-# Verify the output's public key:<br/>&emsp;'''K<sub>o</sub> ?= B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
-# Verify the output's key exchange public key:<br/>&emsp;'''K<sub>e</sub> ?= s*B<sub>i</sub>'''
-# Verify the encrypted value:<br/>&emsp;'''v' ?= v ^ HASH8(T<sub>vmask</sub>||t)'''
-# Verify the encrypted nonce:<br/>&emsp;'''n' ?= n ^ HASH8(T<sub>nmask</sub>||t)'''
+# Calculate the send key:
+#; '''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
+# Calculate the shared secret:
+#; '''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
+# Verify the output's commitment:
+#; '''C ?= v*H + SWITCH(v, HASH32(T<sub>blind</sub>||t))'''
+# Verify the output's public key:
+#; '''K<sub>o</sub> ?= B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
+# Verify the output's key exchange public key:
+#; '''K<sub>e</sub> ?= s*B<sub>i</sub>'''
+# Verify the encrypted value:
+#; '''v' ?= v ^ HASH8(T<sub>vmask</sub>||t)'''
+# Verify the encrypted nonce:
+#; '''n' ?= n ^ HASH8(T<sub>nmask</sub>||t)'''
 
 ==Test Vectors==
 
