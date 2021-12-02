@@ -280,20 +280,20 @@ A payment proof shall consist of the output, a merkle proof proving the output i
 To verify, the arbiter must:
 
 # Verify the merkle proof is valid for the output and the blockchain's TXO PMMR
-# Calculate the send key:
-:: '''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
-# Calculate the shared secret:
-:: '''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
-# Verify the output's commitment:
-:: '''C ?= v*H + SWITCH(v, HASH32(T<sub>blind</sub>||t))'''
-# Verify the output's public key:
-:: '''K<sub>o</sub> ?= B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
-# Verify the output's key exchange public key:
-:: '''K<sub>e</sub> ?= s*B<sub>i</sub>'''
-# Verify the encrypted value:
-:: '''v' ?= v ^ HASH8(T<sub>vmask</sub>||t)'''
-# Verify the encrypted nonce:
-:: '''n' ?= n ^ HASH8(T<sub>nmask</sub>||t)'''
+# Calculate the send key:<br/>
+'''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
+# Calculate the shared secret:<br/>
+'''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
+# Verify the output's commitment:<br/>
+'''C ?= v*H + SWITCH(v, HASH32(T<sub>blind</sub>||t))'''
+# Verify the output's public key:<br/>
+'''K<sub>o</sub> ?= B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
+# Verify the output's key exchange public key:<br/>
+'''K<sub>e</sub> ?= s*B<sub>i</sub>'''
+# Verify the encrypted value:<br/>
+'''v' ?= v ^ HASH8(T<sub>vmask</sub>||t)'''
+# Verify the encrypted nonce:<br/>
+'''n' ?= n ^ HASH8(T<sub>nmask</sub>||t)'''
 
 ==Test Vectors==
 
