@@ -100,15 +100,15 @@ A transaction must also have 2 associated offsets(scalars), easily summed when a
 To create an output for value '''v''' to a receiver's stealth address pair '''(A<sub>i</sub>, B<sub>i</sub>)''', the sender must:
 
 # Randomly generate the sender's keypair '''(k<sub>s</sub>, K<sub>s</sub>)'''
-# Derive the nonce '''n = HASH16(T_NONCE||k<sub>s</sub>)'''
-# Derive the sending key '''s = HASH32(T_SEND||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
-# Derive the shared secret '''t = HASH32(T_DERIVE||s*A<sub>i</sub>)'''
-# Compute the receiver's one-time public key '''K<sub>o</sub> = B<sub>i</sub> + HASH32(T_RECEIVE||t)*G'''
+# Derive the nonce '''n = HASH16(T<sub>nonce</sub>||k<sub>s</sub>)'''
+# Derive the sending key '''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
+# Derive the shared secret '''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
+# Compute the receiver's one-time public key '''K<sub>o</sub> = B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
 # Compute the key exchange public key '''K<sub>e</sub> = s*B<sub>i</sub>'''
-# Encrypt the value '''v' = v ^ HASH8(T_VMASK, t)'''
-# Encrypt the nonce '''n' = n ^ HASH16(T_NMASK, t)'''
+# Encrypt the value '''v' = v ^ HASH8(T<sub>vmask</sub>||t)'''
+# Encrypt the nonce '''n' = n ^ HASH16(T<sub>nmask</sub>||t)'''
 # Generate the signature '''&rho;''' for message '''(v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>)''' using the sender's key '''k<sub>s</sub>'''
-# Compute the commitment '''C = v*H + q*G''' where '''q = SWITCH(v, HASH32(T_BLIND, t))'''
+# Compute the commitment '''C = v*H + q*G''' where '''q = SWITCH(v, HASH32(T<sub>blind</sub>, t))'''
 # Generate the rangeproof '''&pi;''', proving '''v < v<sub>max</sub>''', while also committing to the message '''(C||v'||n'||K<sub>s</sub>||K<sub>o</sub>||K<sub>e</sub>||&rho;)'''
 
 ====3.2 Input Creation====
@@ -173,19 +173,19 @@ Wallets must keep a map '''B<sub>i</sub>'''->'''i''' of all used spend pubkeys a
 
 To check if an output belongs to a wallet:
 
-# Calculate the ECDHE shared secret '''t''' = '''HASH32(T_DERIVE||a*K<sub>t</sub>)'''
+# Calculate the ECDHE shared secret '''t''' = '''HASH32(T<sub>derive</sub>||a*K<sub>t</sub>)'''
 # If the first byte of '''t''' does not match the view tag '''t[0]''', the output does not belong to the wallet.
-# Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' - '''HASH32(T_RECEIVE||t)*G'''
+# Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' - '''HASH32(T<sub>recv</sub>||t)*G'''
 # Lookup the index '''i''' that generates '''B<sub>i</sub>''' from the wallet's map '''B<sub>i</sub>'''->'''i'''. If not found, the output does not belong to the wallet.
-# Decrypt the value '''v''' = '''v' ^ HASH8(T_VMASK||t)'''
-# Verify that '''v*H + SWITCH(v, q)*G''' ?= '''C<sub>o</sub>''' where '''q = HASH32(T_BLIND||t)'''
-# Decrypt the nonce '''n''' = '''n' ^ HASH16(T_NMASK||t)'''
-# Calculate the send key '''s''' = '''HASH32(T_SEND||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
+# Decrypt the value '''v''' = '''v' ^ HASH8(T<sub>vmask</sub>||t)'''
+# Verify that '''v*H + SWITCH(v, q)*G''' ?= '''C<sub>o</sub>''' where '''q = HASH32(T<sub>blind</sub>||t)'''
+# Decrypt the nonce '''n''' = '''n' ^ HASH16(T<sub>nmask</sub>||t)'''
+# Calculate the send key '''s''' = '''HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
 # Verify that '''K<sub>e</sub>''' ?= '''s*B<sub>i</sub>'''.
 
 If all verifications succeed, the output belongs to the wallet, and is safe to use.
 
-The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T_RECEIVE||t)''' + '''b<sub>i</sub>'''.
+The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T<sub>recv</sub>||t)''' + '''b<sub>i</sub>'''.
 
 ===8 Security===
 
@@ -275,9 +275,25 @@ This proposal provides the same privacy benefits as traditional Mimblewimble. In
 
 ===11 Payment Proofs===
 
-A payment proof shall consist of the output, a merkle proof proving the output was in the UTXO PMMR, the output's value '''v''', the output's nonce '''n''', and a signature proving knowledge of '''k<sub>s</sub>'''.
+A payment proof shall consist of the output, a merkle proof proving the output is in the TXO PMMR, the output's value '''v''', the output's nonce '''n''', and a signature proving knowledge of '''k<sub>s</sub>'''.
 
-'''''TODO: Explain the verification process, and why it works'''''
+To verify, the arbiter must:
+
+:# Verify the merkle proof is valid for the output and the blockchain's TXO PMMR
+:# Calculate the send key:
+:: '''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
+:# Calculate the shared secret:
+:: '''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
+:# Verify the output's commitment:
+:: '''C ?= v*H + SWITCH(v, HASH32(T<sub>blind</sub>||t))'''
+:# Verify the output's public key:
+:: '''K<sub>o</sub> ?= B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
+:# Verify the output's key exchange public key:
+:: '''K<sub>e</sub> ?= s*B<sub>i</sub>'''
+:# Verify the encrypted value:
+:: '''v' ?= v ^ HASH8(T<sub>vmask</sub>||t)'''
+:# Verify the encrypted nonce:
+:: '''n' ?= n ^ HASH8(T<sub>nmask</sub>||t)'''
 
 ==Test Vectors==
 
