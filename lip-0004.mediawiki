@@ -103,7 +103,7 @@ To create an output for value '''v''' to a receiver's stealth address pair '''(A
 # Derive the nonce '''n = HASH16(T<sub>nonce</sub>||k<sub>s</sub>)'''
 # Derive the sending key '''s = HASH32(T<sub>send</sub>||A<sub>i</sub>||B<sub>i</sub>||v||n)'''
 # Derive the shared secret '''t = HASH32(T<sub>derive</sub>||s*A<sub>i</sub>)'''
-# Compute the receiver's one-time public key '''K<sub>o</sub> = B<sub>i</sub> + HASH32(T<sub>recv</sub>||t)*G'''
+# Compute the receiver's one-time public key '''K<sub>o</sub> = B<sub>i</sub> * HASH32(T<sub>recv</sub>||t)'''
 # Compute the key exchange public key '''K<sub>e</sub> = s*B<sub>i</sub>'''
 # Encrypt the value '''v' = v ^ HASH8(T<sub>vmask</sub>||t)'''
 # Encrypt the nonce '''n' = n ^ HASH16(T<sub>nmask</sub>||t)'''
@@ -175,7 +175,7 @@ To check if an output belongs to a wallet:
 
 # Calculate the ECDHE shared secret '''t''' = '''HASH32(T<sub>derive</sub>||a*K<sub>e</sub>)'''
 # If the first byte of '''t''' does not match the view tag '''t[0]''', the output does not belong to the wallet.
-# Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' - '''HASH32(T<sub>recv</sub>||t)*G'''
+# Calculate the one-time spend pubkey: '''B<sub>i</sub>''' = '''K<sub>o</sub>''' * '''HASH32(T<sub>recv</sub>||t)<super>-1</super>'''
 # Lookup the index '''i''' that generates '''B<sub>i</sub>''' from the wallet's map '''B<sub>i</sub>'''->'''i'''. If not found, the output does not belong to the wallet.
 # Decrypt the value '''v''' = '''v' ^ HASH8(T<sub>vmask</sub>||t)'''
 # Verify that '''v*H + SWITCH(v, q)*G''' ?= '''C<sub>o</sub>''' where '''q = HASH32(T<sub>blind</sub>||t)'''
@@ -185,7 +185,7 @@ To check if an output belongs to a wallet:
 
 If all verifications succeed, the output belongs to the wallet, and is safe to use.
 
-The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T<sub>recv</sub>||t)''' + '''b<sub>i</sub>'''.
+The spend key can be recovered by '''k<sub>o</sub>''' = '''HASH32(T<sub>recv</sub>||t)''' * '''b<sub>i</sub>'''.
 
 ===8 Security===
 
